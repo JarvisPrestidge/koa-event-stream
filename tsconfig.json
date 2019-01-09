@@ -1,0 +1,23 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "lib": [
+            "dom",
+            "es2018"
+        ],
+        "outDir": "dist",
+        "rootDir": "src",
+        "sourceMap": true,
+        "strict": true,
+        "pretty": true,
+        "declaration": false,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "experimentalDecorators": true
+    },
+    "include": [
+        "src"
+    ]
+}
