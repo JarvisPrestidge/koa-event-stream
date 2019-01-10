@@ -1,7 +1,7 @@
 {
     "name": "koa-sse",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "dist/index.js",
     "author": "Jarvis Prestidge <jarvis@truelayer.com>",
     "license": "MIT",
     "scripts": {

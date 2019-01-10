@@ -5,6 +5,6 @@
  * @interface IKoaSSEOptions
  */
 export interface IKoaSSEOptions {
-    pingInterval: number;
-    closeEvent: string;
+    pingInterval?: number;
+    closeEvent?: string;
 }

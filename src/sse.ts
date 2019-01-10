@@ -1,22 +1,19 @@
 import { Context } from "koa";
 import { IKoaSSEOptions } from "./interfaces/IKoaSSEOptions";
 import { IKoaSSEvent } from "./interfaces/IKoaSSEEvent";
-import { Transform } from "stream";
-
-const defaultOptions: IKoaSSEOptions = { 
-    pingInterval: 30,
-    closeEvent: "close" 
-};
+import { IKoaSSE } from "./interfaces/IKoaSSEE";
+import { Transform, TransformCallback } from "stream";
 
 /**
  * Koa Server Side Events Middleware
  *
  * @class KoaSSE
+ * @extends {Transform}
+ * @implements {IKoaSSE}
  */
-class KoaSSE extends Transform {
+class KoaSSE extends Transform implements IKoaSSE {
 
-    private interval!: NodeJS.Timeout;
-    private readonly ctx: Context;
+    private interval!: number;
     private readonly options: IKoaSSEOptions;
 
     /**
@@ -25,14 +22,13 @@ class KoaSSE extends Transform {
      * @param {Context} ctx
      * @param {IKoaSSEOptions} options
      */
-    constructor(ctx: Context, options: IKoaSSEOptions = defaultOptions) {
+    constructor(ctx: Context, options: IKoaSSEOptions) {
 
         super({
             writableObjectMode: true
         });
 
         this.options = options;
-        this.ctx = ctx;
 
         ctx.set("Content-Type", "text/event-stream");
         ctx.set("Cache-Control", "no-cache, no-transform");
@@ -42,23 +38,23 @@ class KoaSSE extends Transform {
     }
 
     /**
-     * Send server side event
-     *
-     * @param {(IKoaSSEvent | string)} data
-     */
-    public send(data: IKoaSSEvent | string) {
-        this.write(data)
-    }
-
-    /**
      * Send "heartbeat" comment to keep connection alive
      * 
      */
     public keepAlive() {
         this.interval = setInterval(() => {
             this.push(":\n\n");
-            console.log(`${new Date}: SSE heartbeat ping...`);
+            console.log(`[${new Date().toISOString()}]: SSE heartbeat ping...`);
         }, this.options.pingInterval);
+    }
+
+    /**
+     * Send server side event
+     *
+     * @param {(IKoaSSEvent | string)} data
+     */
+    public send(data: IKoaSSEvent | string) {
+        this.write(data)
     }
 
     /**
@@ -77,10 +73,12 @@ class KoaSSE extends Transform {
     /**
      * Transform stream base class method
      *
-     * @param {(IKoaSSEvent | string)} data
-     * @returns
+     * @param {*} data
+     * @param {string} _
+     * @param {TransformCallback} __
+     * @returns {void}
      */
-    public _transform(data: IKoaSSEvent | string) {
+    public _transform(data: any, _: string, __: TransformCallback): void {
 
         // Handle string data 
         if (typeof data === "string") {
