@@ -1,5 +1,5 @@
 {
-    "name": "koa-sse",
+    "name": "koa-event-stream",
     "version": "1.0.0",
     "description": "Koa Server Side Events Middleware",
     "main": "lib/index.js",
