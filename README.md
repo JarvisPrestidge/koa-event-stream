@@ -1,8 +1,11 @@
 # koa-event-stream
 
-![Licence Info](https://img.shields.io/badge/license-MIT-brightgreen.svg)
-![Node Version](https://img.shields.io/badge/node-v.10.15.0-blue.svg)
 ![Language](https://img.shields.io/badge/language-TypeScript-blue.svg)
+![Node Version](https://img.shields.io/badge/node-v.10.15.0-blue.svg)
+![Yarn Version](https://img.shields.io/badge/yarn-v1.12.3-yellow.svg)
+![Licence Info](https://img.shields.io/badge/license-MIT-brightgreen.svg)
+
+<a href="https://communityinviter.com/apps/koa-js/koajs" rel="KoaJs Slack Community">![KoaJs Slack](https://img.shields.io/badge/Koa.Js-Slack%20Channel-Slack.svg?longCache=true&style=for-the-badge)</a>
 
 Koa.js middleware to stream events (using Server Sent Events) to clients without WebSockets.
 
@@ -12,7 +15,6 @@ Koa.js middleware to stream events (using Server Sent Events) to clients without
 * ☁️ Stateless by design
 * 👌 Simple unopinionated API
 
-<a href="https://communityinviter.com/apps/koa-js/koajs" rel="KoaJs Slack Community">![KoaJs Slack](https://img.shields.io/badge/Koa.Js-Slack%20Channel-Slack.svg?longCache=true&style=for-the-badge)</a>
 
 ## Table of Contents
 
@@ -21,6 +23,8 @@ Koa.js middleware to stream events (using Server Sent Events) to clients without
 - [Examples](#examples)
 - [Support](#support)
 - [Contributing](#contributing)
+- [Licence](#licence)
+- [Author](#author)
 
 ## Installation
 
@@ -85,10 +89,10 @@ Please [open an issue](https://github.com/jarvisprestidge/koa-event-stream/issue
 
 Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/jarvisprestidge/koa-event-stream/compare/).
 
-## Author
-
-Jarvis Prestidge: <jarvisprestidge@gmail.com>
-
 ## License
 
 **MIT** : http://opensource.org/licenses/MIT
+
+## Author
+
+**Jarvis Prestidge** | <jarvisprestidge@gmail.com>

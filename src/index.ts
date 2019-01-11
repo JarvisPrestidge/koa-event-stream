@@ -7,10 +7,10 @@ import { Writable } from "stream";
 
 declare module "koa" {
     interface Context {
-        sse: IKoaSSE;
+        sse?: IKoaSSE;
     }
     interface Response extends Koa.BaseResponse {
-        sse: IKoaSSE;
+        sse?: IKoaSSE;
     }
 }
 
