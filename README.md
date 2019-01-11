@@ -1,79 +1,94 @@
-koa-sse
-===
-> koa sse（server side event） middleware
+# koa-event-stream
+
+![Licence Info](https://img.shields.io/badge/license-MIT-brightgreen.svg)
+![Node Version](https://img.shields.io/badge/node-v.10.15.0-blue.svg)
+![Language](https://img.shields.io/badge/language-TypeScript-blue.svg)
+
+Koa.js middleware to stream events (using Server Sent Events) to clients without WebSockets.
+
+* 🎉 First class Typescript support
+* 📡 Realtime events over plain HTTP
+* 💡 Serve as a REST endpoint route
+* ☁️ Stateless by design
+* 👌 Simple unopinionated API
 
 <a href="https://communityinviter.com/apps/koa-js/koajs" rel="KoaJs Slack Community">![KoaJs Slack](https://img.shields.io/badge/Koa.Js-Slack%20Channel-Slack.svg?longCache=true&style=for-the-badge)</a>
 
-Install
----
-> npm install --save koa-sse-stream
+## Table of Contents
 
-Usage
----
-```js
-const Koa = require('koa');
-const compress = require('koa-compress');
-const sse = require('koa-sse-stream');
+- [Installation](#installation)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Support](#support)
+- [Contributing](#contributing)
 
+## Installation
+
+```bash
+$ npm install --save koa-event-stream
+
+...
+```
+```bash
+$ yarn add koa-event-stream
+
+...
+```
+
+## Usage
+
+```typescript
+import * as Koa from "koa";
+import KoaSSE from "../../src/index";
 
 const app = new Koa();
-// !!attention : if you use compress, sse must use after compress 
-app.use(compress())
 
-/**
- * koa sse middleware
- * @param {Object} opts
- * @param {Number} opts.maxClients max client number, default is 10000
- * @param {Number} opts.pingInterval heartbeat sending interval time(ms), default 60s
- * @param {String} opts.closeEvent if not provide end([data]), send default close event to client, default event name is "close"
- * @param {String} opts.matchQuery when set matchQuery, only has query (whatever the value) , sse will create
- */
-app.use(sse({
-    maxClients: 5000,
-    pingInterval: 30000
-}));
+app.use(KoaSSE());
 
-app.use(async (ctx) => {
-    // ctx.sse is a writable stream and has extra method 'send'
-    ctx.sse.send('a notice');
-    ctx.sse.end();
+app.use(async (ctx: Koa.Context) => {
+    let n = 0;
+    const interval = setInterval(() => {
+        ctx.sse.send(new Date().toString());
+        n++;
+        if (n >= 5) {
+            ctx.sse.end();
+            clearInterval(interval);
+        }
+    }, 1000);
+    ctx.sse.on("finish", () => clearInterval(interval));
 });
+
+app.listen(5000);
 ```
 
-ctx.sse
----
-a writable stream 
-> ctx.sse.send(data)
-```js
-/**
- * 
- * @param {String} data sse data to send, if it's a string, an anonymous event will be sent.
- * @param {Object} data sse send object mode
- * @param {Object|String} data.data data to send, if it's object, it will be converted to json
- * @param {String} data.event sse event name
- * @param {Number} data.id sse event id
- * @param {Number} data.retry sse retry times
- * @param {*} encoding not use
- * @param {function} callback same as the write method callback
- */
-send(data, encoding, callback)
-```
->ctx.sse.end(data)
-```js
-/**
- * 
- * @param {String} data sse data to send, if it's a string, an anonymous event will be sent.
- * @param {Object} data sse send object mode
- * @param {Object|String} data.data data to send, if it's object, it will be converted to json
- * @param {String} data.event sse event name
- * @param {Number} data.id sse event id
- * @param {Number} data.retry sse retry times
- * @param {*} encoding not use
- * @param {function} callback same as the write method callback
- */
-end(data, encoding, callback)
+#### ctx.sse.send(data)
+
+```ts
+ctx.sse.send(data)
 ```
 
-Attention !!!
-------
-if you use compress, sse must use after compress 
+#### ctx.sse.end()
+
+```ts
+ctx.sse.end()
+```
+
+## Examples
+
+TBC
+
+## Support
+
+Please [open an issue](https://github.com/jarvisprestidge/koa-event-stream/issues/new) for support.
+
+## Contributing
+
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/jarvisprestidge/koa-event-stream/compare/).
+
+## Author
+
+Jarvis Prestidge: <jarvisprestidge@gmail.com>
+
+## License
+
+**MIT** : http://opensource.org/licenses/MIT
