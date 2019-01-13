@@ -13,7 +13,6 @@ import { Transform, TransformCallback } from "stream";
  */
 class KoaSSE extends Transform implements IKoaSSE {
 
-    private interval!: number;
     private readonly options: IKoaSSEOptions;
 
     /**
@@ -30,6 +29,10 @@ class KoaSSE extends Transform implements IKoaSSE {
 
         this.options = options;
 
+        ctx.req.socket.setTimeout(0);
+        ctx.req.socket.setNoDelay(true);
+        ctx.req.socket.setKeepAlive(true);
+
         ctx.set("Content-Type", "text/event-stream");
         ctx.set("Cache-Control", "no-cache, no-transform");
         ctx.set("Connection", "keep-alive");
@@ -42,10 +45,7 @@ class KoaSSE extends Transform implements IKoaSSE {
      * 
      */
     public keepAlive() {
-        this.interval = setInterval(() => {
-            this.push(":\n\n");
-            console.log(`[${new Date().toISOString()}]: SSE heartbeat ping...`);
-        }, this.options.pingInterval);
+        this.push(":\n\n");
     }
 
     /**
@@ -54,7 +54,11 @@ class KoaSSE extends Transform implements IKoaSSE {
      * @param {(IKoaSSEvent | string)} data
      */
     public send(data: IKoaSSEvent | string) {
-        this.write(data)
+        try {
+            this.write(data)
+        } catch (error) {
+            console.error("Cannot write to already destroyed stream");
+        }
     }
 
     /**
@@ -65,9 +69,7 @@ class KoaSSE extends Transform implements IKoaSSE {
         const data: IKoaSSEvent = { 
             event: this.options.closeEvent 
         };
-        clearInterval(this.interval);
-        this.send(data);
-        this.end();
+        this.end(data);
     }
 
     /**
@@ -78,12 +80,12 @@ class KoaSSE extends Transform implements IKoaSSE {
      * @param {TransformCallback} __
      * @returns {void}
      */
-    public _transform(data: any, _: string, __: TransformCallback): void {
+    public _transform(data: any, _: string, cb: TransformCallback): void {
 
         // Handle string data 
         if (typeof data === "string") {
             this.push(`data: ${data}\n\n`);
-            return;
+            return cb();
         }
 
         // Handle object data 
@@ -97,6 +99,7 @@ class KoaSSE extends Transform implements IKoaSSE {
             ? JSON.stringify(data.data)
             : data.data;
         this.push(`data: ${text}\n\n`);
+        return cb();
     }
 }
 

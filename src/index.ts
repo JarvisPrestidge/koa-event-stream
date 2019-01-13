@@ -20,13 +20,29 @@ const defaultOptions: IKoaSSEOptions = {
 };
 
 /**
- * Koa Server Side Events middleware
+ * Koa Server Side Events middleware wrapper
  *
  * @param {IKoaSSEOptions} [options=defaultOptions]
  * @returns
  */
 const middleware = (options: IKoaSSEOptions = defaultOptions) => {
 
+    const ssePool: IKoaSSE[] = [];
+
+    setInterval(() => {
+        for (const sse of ssePool) {
+            sse.keepAlive();
+        }
+        console.log(`[${new Date().toISOString()}] [${ssePool.length} clients connected]: SSE heartbeat ping...`);
+    }, options.pingInterval);
+
+    /**
+     * Returned middleware
+     *
+     * @param {Context} ctx
+     * @param {() => Promise<void>} next
+     * @returns
+     */
     return async (ctx: Context, next: () => Promise<void>) => {
 
         if (ctx.res.headersSent) {
@@ -38,7 +54,26 @@ const middleware = (options: IKoaSSEOptions = defaultOptions) => {
 
         const sse = new KoaSSE(ctx, options);
 
-        sse.on("finish", () => ctx.res.end());
+        ssePool.push(sse);
+
+        /**
+         * Destroy and release stream resources if connection closes or errors
+         *
+         * @returns {Promise<void>}
+         */
+        const close = async (): Promise<void> => {
+            // Remove sse instance from pool
+            ssePool.splice(ssePool.indexOf(sse), 1);
+            // Release stream resources
+            sse.unpipe();
+            sse.destroy();
+            // End the response
+            ctx.res.end();
+            ctx.socket.destroy();
+        };
+
+        sse.on("close", close);
+        sse.on("error", close);
 
         ctx.sse = ctx.response.sse = sse;
 
